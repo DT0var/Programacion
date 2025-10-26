@@ -1,15 +1,6 @@
-# ============================
-# Inventario de artículos
-# Todo en un solo archivo
-# ============================
-
-# La lista donde guardaremos los artículos
+# lista de articulos
 articulos = []
-
-# -----------------------------
 # Funciones del programa
-# -----------------------------
-
 def generar_id():
     """Genera un ID automático."""
     if len(articulos) == 0:
@@ -19,29 +10,29 @@ def generar_id():
 
 
 def crear_articulo():
-    print("\n--- Crear artículo ---")
+    print("\nCrear artículo")
     nombre = input("Nombre: ")
     while True:
         try:
             precio = float(input("Precio: "))
             break
         except:
-            print("Por favor, escribe un número válido.")
+            print("escribe un número válido.")
     while True:
         try:
             stock = int(input("Stock: "))
             break
         except:
-            print("Por favor, escribe un número entero.")
+            print("escribe un número entero.")
     nuevo = {"id": generar_id(), "nombre": nombre, "precio": precio, "stock": stock, "activo": True}
     articulos.append(nuevo)
     print("Artículo creado correctamente.\n")
 
 
 def listar_articulos():
-    print("\n--- Lista de artículos ---")
+    print("\nLista de artículos")
     if len(articulos) == 0:
-        print("No hay artículos registrados.\n")
+        print("No hay artículos registrados.")
     else:
         for a in articulos:
             estado = "Activo" if a["activo"] else "Inactivo"
@@ -122,10 +113,7 @@ def alternar_activo():
         print("Artículo no encontrado.\n")
 
 
-# -----------------------------
 # Menú principal
-# -----------------------------
-
 def menu():
     opcion = 0
     while opcion != 7:
@@ -154,7 +142,7 @@ def menu():
                 if art:
                     print(f"\n{art}\n")
                 else:
-                    print("No encontrado.\n")
+                    print("\nNo encontrado.")
             except:
                 print("ID no válido.\n")
         elif opcion == 4:
@@ -164,14 +152,8 @@ def menu():
         elif opcion == 6:
             alternar_activo()
         elif opcion == 7:
-            print("Saliendo del programa...")
+            print("\nvuelva pornto.")
         else:
             print("Opción no válida.\n")
 
-
-# -----------------------------
-# Inicia el programa
-# -----------------------------
-
 menu()
-

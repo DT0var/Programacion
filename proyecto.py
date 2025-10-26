@@ -1,159 +1,180 @@
-# lista de articulos
+#articulos u usuarios1
 articulos = []
-# Funciones del programa
-def generar_id():
-    """Genera un ID automático."""
-    if len(articulos) == 0:
-        return 1
-    else:
-        return articulos[-1]["id"] + 1
+usuarios = []
 
-
-def crear_articulo():
-    print("\nCrear artículo")
-    nombre = input("Nombre: ")
+def leer_entero(msg):
     while True:
         try:
-            precio = float(input("Precio: "))
-            break
+            return int(input(msg))
         except:
-            print("escribe un número válido.")
+            print("Debe escribir un número entero.")
+
+def leer_flotante(msg):
     while True:
         try:
-            stock = int(input("Stock: "))
-            break
+            return float(input(msg))
         except:
-            print("escribe un número entero.")
-    nuevo = {"id": generar_id(), "nombre": nombre, "precio": precio, "stock": stock, "activo": True}
-    articulos.append(nuevo)
-    print("Artículo creado correctamente.\n")
+            print("Debe escribir un número válido.")
 
+def generar_id(lista):
+    return lista[-1]["id"] + 1 if lista else 1
 
-def listar_articulos():
-    print("\nLista de artículos")
-    if len(articulos) == 0:
-        print("No hay artículos registrados.")
-    else:
-        for a in articulos:
-            estado = "Activo" if a["activo"] else "Inactivo"
-            print(f"ID: {a['id']} | {a['nombre']} | Precio: {a['precio']} | Stock: {a['stock']} | {estado}")
-        print()
+def validar_email(email):
+    return "@" in email and "." in email
 
+# Funciones genéricas
+def listar_elementos(lista, campos):
+    if not lista:
+        print("No hay registros.\n")
+        return
+    for e in lista:
+        datos = " | ".join([f"{c}: {e[c]}" for c in campos])
+        estado = "Activo" if e["activo"] else "Inactivo"
+        print(f"{datos} | {estado}")
+    print()
 
-def buscar_articulo_por_id(id_busqueda):
-    for a in articulos:
-        if a["id"] == id_busqueda:
-            return a
+def buscar_por_id(lista, id_busqueda):
+    for e in lista:
+        if e["id"] == id_busqueda:
+            return e
     return None
 
+def alternar_activo(lista, nombre):
+    id_busqueda = leer_entero(f"ID del {nombre}: ")
+    e = buscar_por_id(lista, id_busqueda)
+    if e:
+        e["activo"] = not e["activo"]
+        estado = "activo" if e["activo"] else "inactivo"
+        print(f"El {nombre} '{e['nombre']}' ahora está {estado}.\n")
+    else:
+        print(f"{nombre.capitalize()} no encontrado.\n")
+
+#articulos
+def crear_articulo():
+    nombre = input("Nombre del artículo: ")
+    precio = leer_flotante("Precio: ")
+    stock = leer_entero("Stock: ")
+    articulos.append({
+        "id": generar_id(articulos),
+        "nombre": nombre,
+        "precio": precio,
+        "stock": stock,
+        "activo": True
+    })
+    print("Artículo creado.\n")
 
 def actualizar_articulo():
-    print("\n--- Actualizar artículo ---")
-    try:
-        id_busqueda = int(input("ID del artículo: "))
-    except:
-        print("ID no válido.\n")
-        return
-
-    art = buscar_articulo_por_id(id_busqueda)
-    if art:
-        nuevo_nombre = input("Nuevo nombre (deja vacío para mantener): ")
-        if nuevo_nombre != "":
-            art["nombre"] = nuevo_nombre
-
-        nuevo_precio = input("Nuevo precio (deja vacío para mantener): ")
-        if nuevo_precio != "":
-            try:
-                art["precio"] = float(nuevo_precio)
-            except:
-                print("Precio no válido, no se cambió.")
-
-        nuevo_stock = input("Nuevo stock (deja vacío para mantener): ")
-        if nuevo_stock != "":
-            try:
-                art["stock"] = int(nuevo_stock)
-            except:
-                print("Stock no válido, no se cambió.")
-
-        print("Artículo actualizado.\n")
-    else:
+    id_busqueda = leer_entero("ID del artículo: ")
+    art = buscar_por_id(articulos, id_busqueda)
+    if not art:
         print("Artículo no encontrado.\n")
-
+        return
+    nuevo_nombre = input("Nuevo nombre (vacío para mantener): ")
+    if nuevo_nombre: art["nombre"] = nuevo_nombre
+    nuevo_precio = input("Nuevo precio (vacío para mantener): ")
+    if nuevo_precio:
+        try: art["precio"] = float(nuevo_precio)
+        except: print("Precio no válido.")
+    nuevo_stock = input("Nuevo stock (vacío para mantener): ")
+    if nuevo_stock:
+        try: art["stock"] = int(nuevo_stock)
+        except: print("Stock no válido.")
+    print("Artículo actualizado.\n")
 
 def eliminar_articulo():
-    print("\n--- Eliminar artículo ---")
-    try:
-        id_busqueda = int(input("ID del artículo: "))
-    except:
-        print("ID no válido.\n")
-        return
-
-    art = buscar_articulo_por_id(id_busqueda)
+    id_busqueda = leer_entero("ID del artículo: ")
+    art = buscar_por_id(articulos, id_busqueda)
     if art:
         articulos.remove(art)
         print("Artículo eliminado.\n")
     else:
-        print("No encontrado.\n")
-
-
-def alternar_activo():
-    print("\n--- Cambiar activo/inactivo ---")
-    try:
-        id_busqueda = int(input("ID del artículo: "))
-    except:
-        print("ID no válido.\n")
-        return
-
-    art = buscar_articulo_por_id(id_busqueda)
-    if art:
-        art["activo"] = not art["activo"]
-        estado = "activo" if art["activo"] else "inactivo"
-        print(f"Artículo {art['nombre']} ahora está {estado}.\n")
-    else:
         print("Artículo no encontrado.\n")
 
+def menu_articulos():
+    while True:
+        print("\n--- MENÚ DE ARTÍCULOS ---")
+        print("1. Crear  2. Listar  3. Buscar  4. Actualizar")
+        print("5. Eliminar  6. Activar/Desactivar  7. Volver")
+        op = leer_entero("Opción: ")
+        if op == 1: crear_articulo()
+        elif op == 2: listar_elementos(articulos, ["id", "nombre", "precio", "stock"])
+        elif op == 3:
+            id_b = leer_entero("ID del artículo: ")
+            print(buscar_por_id(articulos, id_b) or "No encontrado.\n")
+        elif op == 4: actualizar_articulo()
+        elif op == 5: eliminar_articulo()
+        elif op == 6: alternar_activo(articulos, "artículo")
+        elif op == 7: break
+        else: print("Opción no válida.\n")
 
-# Menú principal
-def menu():
-    opcion = 0
-    while opcion != 7:
-        print("=== MENÚ DE ARTÍCULOS ===")
-        print("1. Crear artículo")
-        print("2. Listar artículos")
-        print("3. Buscar artículo por ID")
-        print("4. Actualizar artículo")
-        print("5. Eliminar artículo")
-        print("6. Activar / Desactivar artículo")
-        print("7. Salir")
+# usuarios
+def crear_usuario():
+    nombre = input("Nombre: ")
+    email = input("Email: ")
+    while not validar_email(email):
+        print("Email no válido.")
+        email = input("Email: ")
+    usuarios.append({
+        "id": generar_id(usuarios),
+        "nombre": nombre,
+        "email": email,
+        "activo": True
+    })
+    print("Usuario creado.\n")
 
-        try:
-            opcion = int(input("Elija una opción: "))
-        except:
-            opcion = 0
+def actualizar_usuario():
+    id_busqueda = leer_entero("ID del usuario: ")
+    usr = buscar_por_id(usuarios, id_busqueda)
+    if not usr:
+        print("Usuario no encontrado.\n")
+        return
+    nuevo_nombre = input("Nuevo nombre (vacío para mantener): ")
+    if nuevo_nombre: usr["nombre"] = nuevo_nombre
+    nuevo_email = input("Nuevo email (vacío para mantener): ")
+    if nuevo_email:
+        if validar_email(nuevo_email): usr["email"] = nuevo_email
+        else: print("Email no válido.")
+    print("Usuario actualizado.\n")
 
-        if opcion == 1:
-            crear_articulo()
-        elif opcion == 2:
-            listar_articulos()
-        elif opcion == 3:
-            try:
-                id_busqueda = int(input("ID del artículo: "))
-                art = buscar_articulo_por_id(id_busqueda)
-                if art:
-                    print(f"\n{art}\n")
-                else:
-                    print("\nNo encontrado.")
-            except:
-                print("ID no válido.\n")
-        elif opcion == 4:
-            actualizar_articulo()
-        elif opcion == 5:
-            eliminar_articulo()
-        elif opcion == 6:
-            alternar_activo()
-        elif opcion == 7:
-            print("\nvuelva pornto.")
+def eliminar_usuario():
+    id_busqueda = leer_entero("ID del usuario: ")
+    usr = buscar_por_id(usuarios, id_busqueda)
+    if usr:
+        usuarios.remove(usr)
+        print("Usuario eliminado.\n")
+    else:
+        print("Usuario no encontrado.\n")
+
+def menu_usuarios():
+    while True:
+        print("\n--- MENÚ DE USUARIOS ---")
+        print("1. Crear  2. Listar  3. Buscar  4. Actualizar")
+        print("5. Eliminar  6. Activar/Desactivar  7. Volver")
+        op = leer_entero("Opción: ")
+        if op == 1: crear_usuario()
+        elif op == 2: listar_elementos(usuarios, ["id", "nombre", "email"])
+        elif op == 3:
+            id_b = leer_entero("ID del usuario: ")
+            print(buscar_por_id(usuarios, id_b) or "No encontrado.\n")
+        elif op == 4: actualizar_usuario()
+        elif op == 5: eliminar_usuario()
+        elif op == 6: alternar_activo(usuarios, "usuario")
+        elif op == 7: break
+        else: print("Opción no válida.\n")
+
+# menu
+def menu_principal():
+    while True:
+        print("\n=== MENÚ PRINCIPAL ===")
+        print("1. Artículos  2. Usuarios  3. Salir")
+        op = leer_entero("Opción: ")
+        if op == 1: menu_articulos()
+        elif op == 2: menu_usuarios()
+        elif op == 3:
+            print("Programa finalizado.")
+            break
         else:
             print("Opción no válida.\n")
 
-menu()
+# Ejecutar
+menu_principal()

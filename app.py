@@ -1,26 +1,30 @@
-# menu principal del proyecto liga deportiva amateur
-
 import equipos
 import jugadores
+import partidos
 
 def menu_principal():
     while True:
-        print("\n=== liga deportiva ===")
-        print("1. gestion de equipos")
-        print("2. gestion de jugadores")
-        print("0. salir")
-
-        opcion = input("elige una opcion: ")
+        print("""
+=== LIGA DEPORTIVA AMATEUR ===
+1. Gestión de equipos
+2. Gestión de jugadores
+3. Calendario y partidos
+0. Salir
+""")
+        opcion = input("Elige una opción: ").strip()
 
         if opcion == "1":
             equipos.menu_equipos()
         elif opcion == "2":
             jugadores.menu_jugadores()
+        elif opcion == "3":
+            partidos.menu_partidos()
         elif opcion == "0":
-            print("saliendo del programa...")
+            print("Saliendo del sistema...")
             break
         else:
-            print("opcion no valida")
+            print("Opción inválida.")
 
 if __name__ == "__main__":
     menu_principal()
+

@@ -1,150 +1,163 @@
-import equipos  
+import equipos
 
-# lista que guarda todos los jugadores en memoria
+# Lista que guarda todos los jugadores en memoria
 jugadores = []
 
-# funcion para generar id unico
+# Función para generar ID único
 def generar_id():
     if jugadores:
         return jugadores[-1]["id"] + 1
-    else:
-        return 1
+    return 1
 
-# funcion para crear jugador
+# Alta de jugador
 def crear_jugador():
-    print("\n--- crear jugador ---")
-    nombre = input("nombre del jugador: ").strip()
-    posicion = input("posicion: ").strip()
+    print("\n--- Alta de jugador ---")
+    nombre = input("Nombre del jugador: ").strip()
+    posicion = input("Posición: ").strip()
 
     if not nombre or not posicion:
-        print("error: nombre y posicion no pueden estar vacios")
+        print("Error: nombre y posición no pueden estar vacíos.")
         return
 
     try:
-        id_equipo = int(input("id del equipo al que pertenece: "))
-    except:
-        print("id invalido")
+        equipo_id = int(input("ID del equipo al que pertenece: "))
+    except ValueError:
+        print("ID inválido.")
         return
 
-    # buscar equipo activo
-    equipo = None
-    for e in equipos.equipos:
-        if e["id"] == id_equipo and e["activo"]:
-            equipo = e
-            break
-
+    # Validar que el equipo exista y esté activo
+    equipo = next((e for e in equipos.equipos if e["id"] == equipo_id and e["activo"]), None)
     if not equipo:
-        print("equipo no encontrado o inactivo")
+        print("El equipo no existe o está inactivo.")
         return
 
     nuevo = {
         "id": generar_id(),
         "nombre": nombre,
         "posicion": posicion,
-        "id_equipo": id_equipo,
+        "equipo_id": equipo_id,
         "activo": True
     }
-
     jugadores.append(nuevo)
-    print("jugador creado correctamente")
+    print(f"Jugador '{nombre}' agregado correctamente al equipo '{equipo['nombre']}'.")
 
-# funcion para listar jugadores activos
+# Listar jugadores (todos o filtrados por equipo)
 def listar_jugadores():
-    print("\n--- lista de jugadores activos ---")
-    activos = [j for j in jugadores if j["activo"]]
-    if not activos:
-        print("no hay jugadores activos")
+    print("\n--- Listar jugadores ---")
+    filtro = input("¿Deseas filtrar por equipo? (s/n): ").strip().lower()
+
+    if filtro == "s":
+        try:
+            equipo_id = int(input("ID del equipo: "))
+        except ValueError:
+            print("ID inválido.")
+            return
+        lista = [j for j in jugadores if j["equipo_id"] == equipo_id and j["activo"]]
+    else:
+        lista = [j for j in jugadores if j["activo"]]
+
+    if not lista:
+        print("No hay jugadores para mostrar.")
         return
 
-    # buscamos nombre del equipo de cada jugador
     tabla = []
-    for j in activos:
-        equipo = next((e["nombre"] for e in equipos.equipos if e["id"] == j["id_equipo"]), "sin equipo")
+    for j in lista:
+        equipo = next((e["nombre"] for e in equipos.equipos if e["id"] == j["equipo_id"]), "Sin equipo")
         tabla.append([j["id"], j["nombre"], j["posicion"], equipo])
 
-    print(tabla, headers=["id", "nombre", "posicion", "equipo"], tablefmt="grid")
+    print(tabla, headers=["ID", "Nombre", "Posición", "Equipo"], tablefmt="grid")
 
-# funcion para buscar jugador por id
+# Buscar jugador por ID
 def buscar_jugador():
-    print("\n--- buscar jugador ---")
+    print("\n--- Buscar jugador por ID ---")
     try:
-        id_buscar = int(input("id del jugador: "))
-    except:
-        print("id invalido")
+        jugador_id = int(input("ID del jugador: "))
+    except ValueError:
+        print("ID inválido.")
         return
 
-    for j in jugadores:
-        if j["id"] == id_buscar:
-            equipo = next((e["nombre"] for e in equipos.equipos if e["id"] == j["id_equipo"]), "sin equipo")
-            print(f"id: {j['id']}")
-            print(f"nombre: {j['nombre']}")
-            print(f"posicion: {j['posicion']}")
-            print(f"equipo: {equipo}")
-            print(f"activo: {j['activo']}")
-            return
+    jugador = next((j for j in jugadores if j["id"] == jugador_id), None)
+    if not jugador:
+        print("Jugador no encontrado.")
+        return
 
-    print("jugador no encontrado")
+    equipo = next((e["nombre"] for e in equipos.equipos if e["id"] == jugador["equipo_id"]), "Sin equipo")
 
-# funcion para actualizar datos del jugador
+    print(f"""
+Ficha del jugador:
+------------------------
+ID: {jugador['id']}
+Nombre: {jugador['nombre']}
+Posición: {jugador['posicion']}
+Equipo: {equipo}
+Activo: {"Sí" if jugador['activo'] else "No"}
+""")
+
+# Actualizar jugador
 def actualizar_jugador():
-    print("\n--- actualizar jugador ---")
+    print("\n--- Actualizar jugador ---")
     try:
-        id_act = int(input("id del jugador a actualizar: "))
-    except:
-        print("id invalido")
+        jugador_id = int(input("ID del jugador a actualizar: "))
+    except ValueError:
+        print("ID inválido.")
         return
 
-    for j in jugadores:
-        if j["id"] == id_act:
-            nuevo_nombre = input(f"nuevo nombre ({j['nombre']}): ").strip()
-            nueva_pos = input(f"nueva posicion ({j['posicion']}): ").strip()
+    jugador = next((j for j in jugadores if j["id"] == jugador_id), None)
+    if not jugador:
+        print("Jugador no encontrado.")
+        return
 
-            if nuevo_nombre:
-                j["nombre"] = nuevo_nombre
-            if nueva_pos:
-                j["posicion"] = nueva_pos
+    nuevo_nombre = input(f"Nuevo nombre ({jugador['nombre']}): ").strip()
+    nueva_posicion = input(f"Nueva posición ({jugador['posicion']}): ").strip()
+    nuevo_equipo_id = input(f"Nuevo equipo ID ({jugador['equipo_id']}): ").strip()
 
-            print("jugador actualizado")
-            return
+    if nuevo_nombre:
+        jugador["nombre"] = nuevo_nombre
+    if nueva_posicion:
+        jugador["posicion"] = nueva_posicion
+    if nuevo_equipo_id:
+        try:
+            nuevo_equipo_id = int(nuevo_equipo_id)
+            equipo = next((e for e in equipos.equipos if e["id"] == nuevo_equipo_id and e["activo"]), None)
+            if equipo:
+                jugador["equipo_id"] = nuevo_equipo_id
+            else:
+                print("El nuevo equipo no existe o está inactivo. Se mantiene el anterior.")
+        except ValueError:
+            print("ID de equipo inválido. Se mantiene el anterior.")
 
-    print("jugador no encontrado")
+    print("Jugador actualizado correctamente.")
 
-# funcion para eliminar jugador (solo se marca como inactivo)
+# Eliminar jugador
 def eliminar_jugador():
-    print("\n--- eliminar jugador ---")
+    print("\nEliminar jugador")
     try:
-        id_del = int(input("id del jugador a eliminar: "))
-    except:
-        print("id invalido")
+        jugador_id = int(input("ID del jugador: "))
+    except ValueError:
+        print("ID inválido.")
         return
 
-    for j in jugadores:
-        if j["id"] == id_del:
-            j["activo"] = False
-            print("jugador marcado como inactivo")
-            return
+    jugador = next((j for j in jugadores if j["id"] == jugador_id), None)
+    if not jugador:
+        print("Jugador no encontrado.")
+        return
 
-    print("jugador no encontrado")
+    jugador["activo"] = False
+    print(f"Jugador '{jugador['nombre']}' marcado como inactivo.")
 
-# funcion para verificar si un equipo tiene jugadores (para modulo de equipos)
-def equipo_tiene_jugadores(id_equipo):
-    for j in jugadores:
-        if j["id_equipo"] == id_equipo and j["activo"]:
-            return True
-    return False
-
-# menu del modulo de jugadores
+# Menú del módulo de jugadores
 def menu_jugadores():
     while True:
-        print("\n--- menu de jugadores ---")
-        print("1. crear jugador")
-        print("2. listar jugadores")
-        print("3. buscar jugador por id")
-        print("4. actualizar jugador")
-        print("5. eliminar jugador")
-        print("0. volver al menu principal")
-
-        opcion = input("elige una opcion: ")
+        print("""
+--- MENÚ DE JUGADORES ---
+1. Alta de jugador
+2. Listar jugadores
+3. Buscar jugador por ID
+4. Actualizar jugador
+5. Eliminar jugador (baja lógica)
+0. Volver al menú principal
+""")
+        opcion = input("Elige una opción: ").strip()
 
         if opcion == "1":
             crear_jugador()
@@ -157,7 +170,7 @@ def menu_jugadores():
         elif opcion == "5":
             eliminar_jugador()
         elif opcion == "0":
-            print("volviendo al menu principal...")
+            print("Volviendo al menú principal...")
             break
         else:
-            print("opcion no valida")
+            print("Opción inválida.")

@@ -126,3 +126,5 @@ def menu_equipos():
             break
         else:
             print("opcion no valida")
+
+
